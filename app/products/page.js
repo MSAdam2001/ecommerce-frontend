@@ -1,4 +1,7 @@
 'use client';
+
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from 'react';
 import api from '@/lib/axios';
 import ProductCard from '@/components/product/ProductCard';
@@ -59,7 +62,7 @@ export default function ProductsPage() {
 
   const skeletons = [...Array(10)].map((_, i) => (
     <div key={i} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #f3f4f6', overflow: 'hidden' }}>
-      <div style={{ height: '180px', background: '#f3f4f6', animation: 'pulse 1.5s infinite' }}></div>
+      <div style={{ height: '180px', background: '#f3f4f6' }}></div>
       <div style={{ padding: '12px' }}>
         <div style={{ height: '12px', background: '#f3f4f6', borderRadius: '6px', marginBottom: '8px', width: '80%' }}></div>
         <div style={{ height: '12px', background: '#f3f4f6', borderRadius: '6px', width: '50%' }}></div>
@@ -69,7 +72,6 @@ export default function ProductsPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
-
       <div style={{ background: '#fff', borderBottom: '1px solid #f3f4f6', padding: '12px 0', position: 'sticky', top: '64px', zIndex: 40 }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1rem' }}>
           <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px' }}>
@@ -93,7 +95,6 @@ export default function ProductsPage() {
       </div>
 
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '1rem' }}>
-
         <div style={{ overflowX: 'auto', paddingBottom: '8px', marginBottom: '1rem' }}>
           <div style={{ display: 'flex', gap: '8px', minWidth: 'max-content' }}>
             <button
