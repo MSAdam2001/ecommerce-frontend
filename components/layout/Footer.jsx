@@ -1,26 +1,28 @@
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-white mt-16">
-      <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer style={{ background: '#111827', color: '#fff', marginTop: '2rem' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '2rem 1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
         <div>
-          <h3 className="text-xl font-bold text-blue-400 mb-3">ShopZone</h3>
-          <p className="text-gray-400 text-sm">Best products at the best prices. Shop with confidence.</p>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#FF6B00', marginBottom: '0.75rem' }}>ShopZone</h3>
+          <p style={{ color: '#9ca3af', fontSize: '13px', lineHeight: 1.6 }}>Best products at the best prices. Shop with confidence.</p>
         </div>
         <div>
-          <h4 className="font-semibold mb-3">Quick Links</h4>
-          <ul className="space-y-2 text-gray-400 text-sm">
-            <li><a href="/" className="hover:text-white">Home</a></li>
-            <li><a href="/products" className="hover:text-white">Products</a></li>
-            <li><a href="/cart" className="hover:text-white">Cart</a></li>
-          </ul>
+          <h4 style={{ fontWeight: '600', marginBottom: '0.75rem', fontSize: '14px' }}>Quick Links</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {[['/', 'Home'], ['/products', 'Products'], ['/cart', 'Cart'], ['/orders', 'My Orders']].map(([href, label]) => (
+              <a key={href} href={href} style={{ color: '#9ca3af', textDecoration: 'none', fontSize: '13px' }}>{label}</a>
+            ))}
+          </div>
         </div>
         <div>
-          <h4 className="font-semibold mb-3">Contact</h4>
-          <p className="text-gray-400 text-sm">support@shopzone.com</p>
+          <h4 style={{ fontWeight: '600', marginBottom: '0.75rem', fontSize: '14px' }}>Contact</h4>
+          <p style={{ color: '#9ca3af', fontSize: '13px' }}>support@shopzone.com</p>
+          <p style={{ color: '#9ca3af', fontSize: '13px', marginTop: '4px' }}>Available 24/7</p>
         </div>
       </div>
-      <div className="text-center text-gray-500 text-sm py-4 border-t border-gray-800">
+      <div style={{ borderTop: '1px solid #1f2937', padding: '1rem', textAlign: 'center', fontSize: '12px', color: '#6b7280' }}>
         © 2024 ShopZone. All rights reserved.
+        <a href="/admin/login" style={{ color: '#374151', textDecoration: 'none', marginLeft: '16px' }}>Admin</a>
       </div>
     </footer>
   );

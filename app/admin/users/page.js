@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/axios';
 import toast from 'react-hot-toast';
+import Link from 'next/link';
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
@@ -28,7 +29,7 @@ export default function AdminUsersPage() {
       toast.success('User deleted');
       fetchUsers();
     } catch (err) {
-      toast.error('Failed to delete user');
+      toast.error('Failed to delete');
     }
   };
 
@@ -38,63 +39,48 @@ export default function AdminUsersPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Manage Users</h1>
-          <span className="text-gray-500 text-sm">{users.length} total users</span>
+    <div style={{ minHeight: '100vh', background: '#f9fafb', padding: '1rem' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '8px' }}>
+          <h1 style={{ fontSize: 'clamp(1.25rem, 4vw, 1.5rem)', fontWeight: '700', color: '#111827' }}>Manage Users ({users.length})</h1>
+          <Link href="/admin" style={{ color: '#FF6B00', fontSize: '13px', textDecoration: 'none' }}>← Dashboard</Link>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '1rem' }}>
           <input
             type="text"
             placeholder="Search by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full border border-gray-200 rounded-lg px-4 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-orange-400"
+            style={{ width: '100%', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', color: '#111827', background: '#fff', boxSizing: 'border-box', outline: 'none', marginBottom: '1rem' }}
           />
 
           {loading ? (
-            <div className="text-center py-10 text-gray-400">Loading users...</div>
+            <div style={{ textAlign: 'center', padding: '2rem', color: '#9ca3af' }}>Loading users...</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left py-3 text-gray-500 font-medium">Name</th>
-                    <th className="text-left py-3 text-gray-500 font-medium">Email</th>
-                    <th className="text-left py-3 text-gray-500 font-medium">Role</th>
-                    <th className="text-left py-3 text-gray-500 font-medium">Joined</th>
-                    <th className="text-left py-3 text-gray-500 font-medium">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map(user => (
-                    <tr key={user._id} className="border-b border-gray-50 hover:bg-gray-50">
-                      <td className="py-3 font-medium">{user.name}</td>
-                      <td className="py-3 text-gray-600">{user.email}</td>
-                      <td className="py-3">
-                        <span className="px-3 py-1 rounded-full text-xs font-medium"
-                          style={user.role === 'admin'
-                            ? { background: '#FFF3E0', color: '#E65100' }
-                            : { background: '#E3F2FD', color: '#1565C0' }
-                          }>
-                          {user.role}
-                        </span>
-                      </td>
-                      <td className="py-3 text-gray-500">{new Date(user.createdAt).toLocaleDateString()}</td>
-                      <td className="py-3">
-                        <button
-                          onClick={() => handleDelete(user._id)}
-                          className="text-red-500 hover:text-red-700 text-xs font-medium"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {filtered.map(user => (
+                <div key={user._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: '#f9fafb', borderRadius: '8px', gap: '8px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#FF6B00', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '14px', fontWeight: '700', flexShrink: 0 }}>
+                      {user.name?.charAt(0).toUpperCase()}
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ fontWeight: '600', color: '#111827', margin: '0 0 2px 0', fontSize: '14px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</p>
+                      <p style={{ color: '#9ca3af', fontSize: '12px', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                    <span style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '20px', fontWeight: '600', background: user.role === 'admin' ? '#FFF3E0' : '#E3F2FD', color: user.role === 'admin' ? '#E65100' : '#1565C0' }}>
+                      {user.role}
+                    </span>
+                    <button onClick={() => handleDelete(user._id)}
+                      style={{ color: '#ef4444', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', padding: '5px 10px', cursor: 'pointer', fontSize: '12px', fontWeight: '500' }}>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>

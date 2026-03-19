@@ -1,25 +1,36 @@
 'use client';
 import { useEffect, useState } from 'react';
 import api from '@/lib/axios';
-import useAuthStore from '@/store/authStore';
+import toast from 'react-hot-toast';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
-export default function MyOrdersPage() {
+export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuthStore();
-  const router = useRouter();
+  const [filter, setFilter] = useState('all');
 
-  useEffect(() => {
-    if (!user) { router.push('/auth/login'); return; }
-    api.get('/orders/my-orders')
-      .then(r => setOrders(r.data.orders))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [user]);
+  const fetchOrders = async () => {
+    try {
+      const res = await api.get('/admin/orders');
+      setOrders(res.data.orders);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const statusSteps = ['processing', 'shipped', 'delivered'];
+  useEffect(() => { fetchOrders(); }, []);
+
+  const updateStatus = async (id, orderStatus) => {
+    try {
+      await api.put(`/admin/orders/${id}`, { orderStatus });
+      toast.success('Order updated!');
+      fetchOrders();
+    } catch (err) {
+      toast.error('Failed to update');
+    }
+  };
 
   const statusColor = {
     processing: { bg: '#FFF3E0', color: '#E65100' },
@@ -28,92 +39,72 @@ export default function MyOrdersPage() {
     cancelled: { bg: '#FFEBEE', color: '#C62828' }
   };
 
-  const statusMessage = {
-    processing: 'Your order is being prepared',
-    shipped: 'Your order is on the way',
-    delivered: 'Your order has been delivered',
-    cancelled: 'Your order was cancelled'
-  };
-
-  if (loading) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontSize: '18px' }}>Loading orders...</div>;
+  const filtered = filter === 'all' ? orders : orders.filter(o => o.orderStatus === filter);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb', padding: '2rem 1rem' }}>
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#111827', marginBottom: '1.5rem' }}>My Orders</h1>
+    <div style={{ minHeight: '100vh', background: '#f9fafb', padding: '1rem' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '8px' }}>
+          <h1 style={{ fontSize: 'clamp(1.25rem, 4vw, 1.5rem)', fontWeight: '700', color: '#111827' }}>Manage Orders</h1>
+          <Link href="/admin" style={{ color: '#FF6B00', fontSize: '13px', textDecoration: 'none' }}>← Dashboard</Link>
+        </div>
 
-        {orders.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '4rem 0', background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb' }}>
-            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📦</div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827', marginBottom: '8px' }}>No orders yet</h2>
-            <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>Start shopping to see your orders here</p>
-            <Link href="/products" style={{ background: '#FF6B00', color: '#fff', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '600' }}>Shop Now</Link>
-          </div>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem', overflowX: 'auto', paddingBottom: '4px' }}>
+          {['all', 'processing', 'shipped', 'delivered', 'cancelled'].map(s => (
+            <button key={s} onClick={() => setFilter(s)}
+              style={{ padding: '8px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', border: '1px solid', cursor: 'pointer', whiteSpace: 'nowrap', background: filter === s ? '#FF6B00' : '#fff', color: filter === s ? '#fff' : '#374151', borderColor: filter === s ? '#FF6B00' : '#e5e7eb' }}>
+              {s.charAt(0).toUpperCase() + s.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '3rem', color: '#9ca3af' }}>Loading orders...</div>
+        ) : filtered.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '3rem', color: '#9ca3af' }}>No orders found</div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {orders.map(order => (
-              <div key={order._id} style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-                <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {filtered.map(order => (
+              <div key={order._id} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
                   <div>
-                    <p style={{ fontSize: '13px', color: '#6b7280', margin: '0 0 2px 0' }}>Order placed {new Date(order.createdAt).toLocaleDateString()}</p>
-                    <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>ID: {order._id.slice(-8).toUpperCase()}</p>
+                    <p style={{ fontWeight: '600', color: '#111827', margin: '0 0 2px 0', fontSize: '14px' }}>{order.user?.name || 'Guest'}</p>
+                    <p style={{ color: '#9ca3af', fontSize: '12px', margin: '0 0 2px 0' }}>{order.user?.email}</p>
+                    <p style={{ color: '#9ca3af', fontSize: '11px', margin: 0 }}>{new Date(order.createdAt).toLocaleString()}</p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <p style={{ fontSize: '1.25rem', fontWeight: '700', color: '#FF6B00', margin: '0 0 2px 0' }}>${order.totalPrice?.toFixed(2)}</p>
-                    <span style={{ fontSize: '12px', padding: '3px 10px', borderRadius: '20px', fontWeight: '500', ...statusColor[order.orderStatus] }}>
-                      {order.paymentStatus === 'paid' ? 'Paid' : 'Pending payment'}
+                    <p style={{ fontSize: '1.1rem', fontWeight: '700', color: '#FF6B00', margin: '0 0 4px 0' }}>${order.totalPrice?.toFixed(2)}</p>
+                    <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: '500', background: order.paymentStatus === 'paid' ? '#E8F5E9' : '#FFF3E0', color: order.paymentStatus === 'paid' ? '#2E7D32' : '#E65100' }}>
+                      {order.paymentStatus}
                     </span>
                   </div>
                 </div>
 
-                {order.orderStatus !== 'cancelled' && (
-                  <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
-                      <div style={{ position: 'absolute', top: '16px', left: '10%', right: '10%', height: '3px', background: '#f3f4f6', zIndex: 0 }}></div>
-                      <div style={{ position: 'absolute', top: '16px', left: '10%', height: '3px', background: '#FF6B00', zIndex: 1, width: order.orderStatus === 'processing' ? '0%' : order.orderStatus === 'shipped' ? '50%' : '100%', transition: 'width 0.5s' }}></div>
-                      {statusSteps.map((step, i) => {
-                        const isActive = statusSteps.indexOf(order.orderStatus) >= i;
-                        return (
-                          <div key={step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2, flex: 1 }}>
-                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: isActive ? '#FF6B00' : '#f3f4f6', border: `3px solid ${isActive ? '#FF6B00' : '#e5e7eb'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '6px' }}>
-                              <span style={{ fontSize: '14px' }}>{isActive ? '✓' : ''}</span>
-                            </div>
-                            <span style={{ fontSize: '12px', fontWeight: isActive ? '600' : '400', color: isActive ? '#FF6B00' : '#9ca3af', textTransform: 'capitalize', textAlign: 'center' }}>{step}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <p style={{ textAlign: 'center', fontSize: '13px', color: '#6b7280', marginTop: '1rem' }}>
-                      {statusMessage[order.orderStatus]}
-                    </p>
-                  </div>
-                )}
-
-                <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #f3f4f6' }}>
+                <div style={{ background: '#f9fafb', borderRadius: '8px', padding: '10px', marginBottom: '10px' }}>
                   {order.items?.map((item, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{ width: '40px', height: '40px', background: '#f9fafb', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>
-                          {item.image ? <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} /> : '📦'}
-                        </div>
-                        <div>
-                          <p style={{ fontSize: '14px', fontWeight: '500', color: '#111827', margin: 0 }}>{item.name}</p>
-                          <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>Qty: {item.quantity}</p>
-                        </div>
-                      </div>
-                      <p style={{ fontWeight: '600', color: '#111827' }}>${(item.price * item.quantity).toFixed(2)}</p>
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '3px 0' }}>
+                      <span style={{ color: '#374151' }}>{item.name} × {item.quantity}</span>
+                      <span style={{ fontWeight: '500' }}>${(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
 
-                <div style={{ padding: '1rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                  <div style={{ fontSize: '13px', color: '#6b7280' }}>
-                    Ship to: {order.shippingAddress?.fullName}, {order.shippingAddress?.city}, {order.shippingAddress?.country}
-                  </div>
-                  <Link href={`/orders/${order._id}`} style={{ color: '#FF6B00', fontSize: '14px', fontWeight: '500', textDecoration: 'none' }}>
-                    View details →
-                  </Link>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                  <span style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '20px', fontWeight: '500', ...statusColor[order.orderStatus] }}>
+                    {order.orderStatus}
+                  </span>
+                  <select value={order.orderStatus} onChange={(e) => updateStatus(order._id, e.target.value)}
+                    style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px 10px', fontSize: '13px', color: '#374151', background: '#fff', cursor: 'pointer', outline: 'none' }}>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
                 </div>
+
+                <p style={{ fontSize: '11px', color: '#9ca3af', margin: '8px 0 0 0' }}>
+                  Ship to: {order.shippingAddress?.fullName}, {order.shippingAddress?.city}, {order.shippingAddress?.country}
+                </p>
               </div>
             ))}
           </div>

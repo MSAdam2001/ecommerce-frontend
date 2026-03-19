@@ -1,21 +1,17 @@
 'use client';
 import useCartStore from '@/store/cartStore';
 import Link from 'next/link';
-import { FiTrash2, FiPlus, FiMinus } from 'react-icons/fi';
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, getTotalPrice, clearCart } = useCartStore();
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
-        <div className="text-6xl mb-4">🛒</div>
-        <h2 className="text-2xl font-bold mb-2">Your cart is empty</h2>
-        <p className="text-gray-500 mb-6">Add some products to get started</p>
-        <Link
-          href="/products"
-          className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700"
-        >
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1rem', background: '#f9fafb' }}>
+        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🛒</div>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#111827', marginBottom: '8px' }}>Your cart is empty</h2>
+        <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>Add some products to get started</p>
+        <Link href="/products" style={{ background: '#FF6B00', color: '#fff', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '600' }}>
           Shop Now
         </Link>
       </div>
@@ -23,88 +19,64 @@ export default function CartPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Your Cart</h1>
-        <button
-          onClick={clearCart}
-          className="text-red-500 hover:text-red-700 text-sm font-medium"
-        >
-          Clear Cart
-        </button>
-      </div>
+    <div style={{ minHeight: '100vh', background: '#f9fafb', padding: '1rem' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          <h1 style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)', fontWeight: '700', color: '#111827' }}>Your Cart</h1>
+          <button onClick={clearCart} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>
+            Clear Cart
+          </button>
+        </div>
 
-      <div className="space-y-4 mb-8">
-        {items.map(item => (
-          <div key={item._id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-4">
-            <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-              {item.images?.[0]?.url ? (
-                <img src={item.images[0].url} alt={item.name} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-2xl">📦</div>
-              )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '1rem' }}>
+          {items.map(item => (
+            <div key={item._id} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '64px', height: '64px', background: '#f9fafb', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
+                {item.images?.[0]?.url
+                  ? <img src={item.images[0].url} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>📦</div>
+                }
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontWeight: '600', color: '#111827', fontSize: '14px', margin: '0 0 4px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</p>
+                <p style={{ color: '#FF6B00', fontWeight: '700', fontSize: '15px', margin: 0 }}>${item.price}</p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                <button onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                  style={{ width: '28px', height: '28px', borderRadius: '50%', border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
+                <span style={{ width: '24px', textAlign: 'center', fontWeight: '600', fontSize: '14px' }}>{item.quantity}</span>
+                <button onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                  style={{ width: '28px', height: '28px', borderRadius: '50%', border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+              </div>
+              <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                <p style={{ fontWeight: '700', color: '#111827', fontSize: '14px', margin: '0 0 4px 0' }}>${(item.price * item.quantity).toFixed(2)}</p>
+                <button onClick={() => removeItem(item._id)}
+                  style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+              </div>
             </div>
+          ))}
+        </div>
 
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-800">{item.name}</h3>
-              <p className="text-blue-600 font-bold">${item.price}</p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => updateQuantity(item._id, item.quantity - 1)}
-                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
-              >
-                <FiMinus size={14} />
-              </button>
-              <span className="w-8 text-center font-semibold">{item.quantity}</span>
-              <button
-                onClick={() => updateQuantity(item._id, item.quantity + 1)}
-                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
-              >
-                <FiPlus size={14} />
-              </button>
-            </div>
-
-            <p className="font-bold text-gray-800 w-20 text-right">
-              ${(item.price * item.quantity).toFixed(2)}
-            </p>
-
-            <button
-              onClick={() => removeItem(item._id)}
-              className="text-red-500 hover:text-red-700 ml-2"
-            >
-              <FiTrash2 size={18} />
-            </button>
+        <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '1.25rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <span style={{ color: '#6b7280', fontSize: '14px' }}>Subtotal</span>
+            <span style={{ fontWeight: '600', fontSize: '14px' }}>${getTotalPrice().toFixed(2)}</span>
           </div>
-        ))}
-      </div>
-
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-gray-600">Subtotal</span>
-          <span className="font-semibold">${getTotalPrice().toFixed(2)}</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+            <span style={{ color: '#6b7280', fontSize: '14px' }}>Shipping</span>
+            <span style={{ color: '#16a34a', fontWeight: '600', fontSize: '14px' }}>Free</span>
+          </div>
+          <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <span style={{ fontSize: '1.1rem', fontWeight: '700', color: '#111827' }}>Total</span>
+            <span style={{ fontSize: '1.1rem', fontWeight: '700', color: '#FF6B00' }}>${getTotalPrice().toFixed(2)}</span>
+          </div>
+          <Link href="/checkout" style={{ display: 'block', width: '100%', background: '#FF6B00', color: '#fff', textAlign: 'center', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '16px', boxSizing: 'border-box' }}>
+            Proceed to Checkout
+          </Link>
+          <Link href="/products" style={{ display: 'block', textAlign: 'center', color: '#6b7280', marginTop: '10px', fontSize: '13px', textDecoration: 'none' }}>
+            Continue Shopping
+          </Link>
         </div>
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-gray-600">Shipping</span>
-          <span className="text-green-600 font-semibold">Free</span>
-        </div>
-        <div className="border-t pt-4 flex justify-between items-center mb-6">
-          <span className="text-xl font-bold">Total</span>
-          <span className="text-xl font-bold text-blue-600">${getTotalPrice().toFixed(2)}</span>
-        </div>
-        <Link
-          href="/checkout"
-          className="block w-full bg-blue-600 text-white text-center py-3 rounded-lg hover:bg-blue-700 font-semibold text-lg"
-        >
-          Proceed to Checkout
-        </Link>
-        <Link
-          href="/products"
-          className="block w-full text-center text-gray-500 hover:text-gray-700 mt-3 text-sm"
-        >
-          Continue Shopping
-        </Link>
       </div>
     </div>
   );

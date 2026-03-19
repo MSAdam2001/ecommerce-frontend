@@ -26,14 +26,12 @@ export default function LoginPage() {
     }
   };
 
-  const inputStyle = { width: '100%', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '12px 16px', fontSize: '15px', color: '#111827', background: '#fff', boxSizing: 'border-box', outline: 'none' };
-
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-      <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb', padding: '2rem', width: '100%', maxWidth: '420px' }}>
+      <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb', padding: 'clamp(1.5rem, 5vw, 2rem)', width: '100%', maxWidth: '420px' }}>
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#FF6B00', marginBottom: '4px' }}>ShopZone</h1>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827' }}>Welcome back</h2>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#FF6B00', marginBottom: '4px' }}>ShopZone</h1>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827', marginBottom: '4px' }}>Welcome back</h2>
           <p style={{ color: '#6b7280', fontSize: '14px' }}>Sign in to your account</p>
         </div>
 
@@ -46,7 +44,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               required
-              style={inputStyle}
+              style={{ width: '100%', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '12px 16px', fontSize: '16px', color: '#111827', background: '#fff', boxSizing: 'border-box', outline: 'none' }}
             />
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
@@ -57,13 +55,13 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
-              style={inputStyle}
+              style={{ width: '100%', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '12px 16px', fontSize: '16px', color: '#111827', background: '#fff', boxSizing: 'border-box', outline: 'none' }}
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            style={{ width: '100%', background: '#FF6B00', color: '#fff', border: 'none', borderRadius: '10px', padding: '13px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', opacity: loading ? 0.7 : 1 }}
+            style={{ width: '100%', background: loading ? '#9ca3af' : '#FF6B00', color: '#fff', border: 'none', borderRadius: '10px', padding: '14px', fontSize: '16px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer' }}
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>

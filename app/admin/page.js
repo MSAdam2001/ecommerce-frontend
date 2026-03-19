@@ -12,23 +12,9 @@ export default function AdminDashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!user || user.role !== 'admin') {
-      router.push('/');
-      return;
-    }
-    fetchStats();
+    if (!user || user.role !== 'admin') { router.push('/'); return; }
+    api.get('/admin/stats').then(r => setStats(r.data.stats)).catch(console.error).finally(() => setLoading(false));
   }, [user]);
-
-  const fetchStats = async () => {
-    try {
-      const res = await api.get('/admin/stats');
-      setStats(res.data.stats);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const statusColor = {
     processing: { bg: '#FFF3E0', color: '#E65100' },
@@ -37,144 +23,81 @@ export default function AdminDashboard() {
     cancelled: { bg: '#FFEBEE', color: '#C62828' }
   };
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-gray-400 text-xl">Loading dashboard...</div>
-    </div>
-  );
+  if (loading) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb' }}><p style={{ color: '#6b7280' }}>Loading dashboard...</p></div>;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-
-        <div className="flex items-center justify-between mb-8">
+    <div style={{ minHeight: '100vh', background: '#f9fafb', padding: '1rem' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '8px' }}>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-500 mt-1">Welcome back, {user?.name}</p>
+            <h1 style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)', fontWeight: '700', color: '#111827', margin: 0 }}>Admin Dashboard</h1>
+            <p style={{ color: '#6b7280', fontSize: '13px', margin: '4px 0 0 0' }}>Welcome back, {user?.name}</p>
           </div>
-          <div className="flex gap-3">
-            <Link href="/admin/orders" className="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 text-sm font-medium">
-              Manage Orders
-            </Link>
-            <Link href="/admin/products" className="text-white px-4 py-2 rounded-lg text-sm font-medium" style={{ background: '#FF6B00' }}>
-              Add Product
-            </Link>
-          </div>
+          <Link href="/admin/products" style={{ background: '#FF6B00', color: '#fff', padding: '10px 16px', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>
+            + Add Product
+          </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="text-white rounded-xl p-5" style={{ background: '#FF6B00' }}>
-            <p className="text-sm opacity-80 mb-1">Total Revenue</p>
-            <p className="text-2xl font-bold">${stats?.totalRevenue?.toFixed(2) || '0.00'}</p>
-            <p className="text-xs opacity-70 mt-1">From paid orders</p>
-          </div>
-          <div className="text-white rounded-xl p-5" style={{ background: '#2B5CE6' }}>
-            <p className="text-sm opacity-80 mb-1">Total Orders</p>
-            <p className="text-2xl font-bold">{stats?.totalOrders || 0}</p>
-            <p className="text-xs opacity-70 mt-1">All time</p>
-          </div>
-          <div className="text-white rounded-xl p-5" style={{ background: '#00A651' }}>
-            <p className="text-sm opacity-80 mb-1">Total Products</p>
-            <p className="text-2xl font-bold">{stats?.totalProducts || 0}</p>
-            <p className="text-xs opacity-70 mt-1">{stats?.lowStockProducts?.length || 0} low stock</p>
-          </div>
-          <div className="text-white rounded-xl p-5" style={{ background: '#8B5CF6' }}>
-            <p className="text-sm opacity-80 mb-1">Total Users</p>
-            <p className="text-2xl font-bold">{stats?.totalUsers || 0}</p>
-            <p className="text-xs opacity-70 mt-1">Registered users</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Recent Orders</h2>
-              <Link href="/admin/orders" className="text-sm text-blue-600 hover:underline">View all</Link>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginBottom: '1.5rem' }}>
+          {[
+            { label: 'Revenue', value: `$${stats?.totalRevenue?.toFixed(0) || 0}`, bg: '#FF6B00' },
+            { label: 'Orders', value: stats?.totalOrders || 0, bg: '#2B5CE6' },
+            { label: 'Products', value: stats?.totalProducts || 0, bg: '#00A651' },
+            { label: 'Users', value: stats?.totalUsers || 0, bg: '#8B5CF6' }
+          ].map((item, i) => (
+            <div key={i} style={{ background: item.bg, borderRadius: '12px', padding: '1rem', color: '#fff' }}>
+              <p style={{ fontSize: '12px', opacity: 0.8, margin: '0 0 4px 0' }}>{item.label}</p>
+              <p style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)', fontWeight: '700', margin: 0 }}>{item.value}</p>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left py-3 text-gray-500 font-medium">Customer</th>
-                    <th className="text-left py-3 text-gray-500 font-medium">Total</th>
-                    <th className="text-left py-3 text-gray-500 font-medium">Status</th>
-                    <th className="text-left py-3 text-gray-500 font-medium">Date</th>
+          ))}
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginBottom: '1.5rem' }}>
+          {[
+            { href: '/admin/orders', icon: '📦', label: 'Orders', sub: 'Manage & update' },
+            { href: '/admin/products', icon: '🛍️', label: 'Products', sub: 'Add & edit' },
+            { href: '/admin/categories', icon: '🗂️', label: 'Categories', sub: 'Organize' },
+            { href: '/admin/users', icon: '👥', label: 'Users', sub: 'View & manage' }
+          ].map(item => (
+            <Link key={item.href} href={item.href} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '1rem', textDecoration: 'none', display: 'block' }}>
+              <div style={{ fontSize: '1.75rem', marginBottom: '6px' }}>{item.icon}</div>
+              <p style={{ fontWeight: '600', color: '#111827', margin: '0 0 2px 0', fontSize: '14px' }}>{item.label}</p>
+              <p style={{ color: '#9ca3af', fontSize: '12px', margin: 0 }}>{item.sub}</p>
+            </Link>
+          ))}
+        </div>
+
+        <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '1rem', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: '1rem', fontWeight: '600', color: '#111827', margin: 0 }}>Recent Orders</h2>
+            <Link href="/admin/orders" style={{ color: '#FF6B00', fontSize: '12px', textDecoration: 'none' }}>View all</Link>
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', minWidth: '400px' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid #f3f4f6' }}>
+                  <th style={{ textAlign: 'left', padding: '8px 4px', color: '#6b7280', fontWeight: '500' }}>Customer</th>
+                  <th style={{ textAlign: 'left', padding: '8px 4px', color: '#6b7280', fontWeight: '500' }}>Total</th>
+                  <th style={{ textAlign: 'left', padding: '8px 4px', color: '#6b7280', fontWeight: '500' }}>Status</th>
+                  <th style={{ textAlign: 'left', padding: '8px 4px', color: '#6b7280', fontWeight: '500' }}>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats?.recentOrders?.map(order => (
+                  <tr key={order._id} style={{ borderBottom: '1px solid #f9fafb' }}>
+                    <td style={{ padding: '10px 4px', fontWeight: '500', color: '#111827' }}>{order.user?.name || 'Guest'}</td>
+                    <td style={{ padding: '10px 4px', fontWeight: '600', color: '#FF6B00' }}>${order.totalPrice?.toFixed(2)}</td>
+                    <td style={{ padding: '10px 4px' }}>
+                      <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: '500', ...statusColor[order.orderStatus] }}>
+                        {order.orderStatus}
+                      </span>
+                    </td>
+                    <td style={{ padding: '10px 4px', color: '#9ca3af' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {stats?.recentOrders?.map(order => (
-                    <tr key={order._id} className="border-b border-gray-50 hover:bg-gray-50">
-                      <td className="py-3 font-medium">{order.user?.name || 'Guest'}</td>
-                      <td className="py-3 font-semibold">${order.totalPrice?.toFixed(2)}</td>
-                      <td className="py-3">
-                        <span className="px-3 py-1 rounded-full text-xs font-medium" style={statusColor[order.orderStatus]}>
-                          {order.orderStatus}
-                        </span>
-                      </td>
-                      <td className="py-3 text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-6">
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold mb-4">Order Status</h2>
-              <div className="space-y-3">
-                {stats?.ordersByStatus?.map(s => (
-                  <div key={s._id} className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 capitalize">{s._id}</span>
-                    <span className="text-sm font-semibold px-3 py-1 rounded-full" style={statusColor[s._id]}>
-                      {s.count}
-                    </span>
-                  </div>
                 ))}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold mb-4">Low Stock Alert</h2>
-              <div className="space-y-3">
-                {stats?.lowStockProducts?.length === 0 && (
-                  <p className="text-gray-400 text-sm">All products well stocked</p>
-                )}
-                {stats?.lowStockProducts?.map(p => (
-                  <div key={p._id} className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">{p.name}</span>
-                    <span className="text-xs px-2 py-1 rounded-full font-medium"
-                      style={{ background: p.stock <= 5 ? '#FFEBEE' : '#FFF3E0', color: p.stock <= 5 ? '#C62828' : '#E65100' }}>
-                      {p.stock} left
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+              </tbody>
+            </table>
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Link href="/admin/orders" className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition text-center">
-            <div className="text-3xl mb-2">📦</div>
-            <p className="font-semibold text-gray-800">Orders</p>
-            <p className="text-gray-400 text-sm">Manage & update</p>
-          </Link>
-          <Link href="/admin/products" className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition text-center">
-            <div className="text-3xl mb-2">🛍️</div>
-            <p className="font-semibold text-gray-800">Products</p>
-            <p className="text-gray-400 text-sm">Add & edit</p>
-          </Link>
-          <Link href="/admin/categories" className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition text-center">
-            <div className="text-3xl mb-2">🗂️</div>
-            <p className="font-semibold text-gray-800">Categories</p>
-            <p className="text-gray-400 text-sm">Organize store</p>
-          </Link>
-          <Link href="/admin/users" className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition text-center">
-            <div className="text-3xl mb-2">👥</div>
-            <p className="font-semibold text-gray-800">Users</p>
-            <p className="text-gray-400 text-sm">View & manage</p>
-          </Link>
         </div>
 
       </div>

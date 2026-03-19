@@ -293,3 +293,4 @@ export default function AdminProductsPage() {
     </div>
   );
 }
+gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))'

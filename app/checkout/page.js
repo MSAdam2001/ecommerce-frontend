@@ -12,40 +12,29 @@ export default function CheckoutPage() {
   const { user } = useAuthStore();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-
   const [form, setForm] = useState({
-    fullName: '',
-    address: '',
-    city: '',
-    postalCode: '',
-    country: '',
-    phone: ''
+    fullName: '', address: '', city: '',
+    postalCode: '', country: '', phone: ''
   });
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
-        <div className="text-6xl mb-4">🔒</div>
-        <h2 className="text-2xl font-bold mb-2">Please login first</h2>
-        <Link href="/auth/login" className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700">
-          Login
-        </Link>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1rem', background: '#f9fafb' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔒</div>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#111827', marginBottom: '8px' }}>Please login first</h2>
+        <Link href="/auth/login" style={{ background: '#FF6B00', color: '#fff', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '600' }}>Login</Link>
       </div>
     );
   }
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
-        <div className="text-6xl mb-4">🛒</div>
-        <h2 className="text-2xl font-bold mb-2">Your cart is empty</h2>
-        <Link href="/products" className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700">
-          Shop Now
-        </Link>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1rem', background: '#f9fafb' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🛒</div>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#111827', marginBottom: '8px' }}>Your cart is empty</h2>
+        <Link href="/products" style={{ background: '#FF6B00', color: '#fff', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '600' }}>Shop Now</Link>
       </div>
     );
   }
@@ -57,16 +46,14 @@ export default function CheckoutPage() {
       const orderItems = items.map(item => ({
         product: item._id,
         name: item.name,
-        price: item.price,
-        quantity: item.quantity,
+        price: Number(item.price),
+        quantity: Number(item.quantity),
         image: item.images?.[0]?.url || ''
       }));
-
       const res = await api.post('/payment/create-checkout-session', {
         items: orderItems,
         shippingAddress: form
       });
-
       clearCart();
       window.location.href = res.data.sessionUrl;
     } catch (err) {
@@ -75,123 +62,72 @@ export default function CheckoutPage() {
     }
   };
 
+  const inputStyle = {
+    width: '100%', border: '1px solid #e5e7eb', borderRadius: '10px',
+    padding: '12px 14px', fontSize: '16px', color: '#111827',
+    background: '#fff', boxSizing: 'border-box', outline: 'none'
+  };
+
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+    <div style={{ minHeight: '100vh', background: '#f9fafb', padding: '1rem' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+        <h1 style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)', fontWeight: '700', color: '#111827', marginBottom: '1.5rem' }}>Checkout</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Shipping Information</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-              <input
-                name="fullName"
-                value={form.fullName}
-                onChange={handleChange}
-                required
-                placeholder="John Doe"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-              <input
-                name="address"
-                value={form.address}
-                onChange={handleChange}
-                required
-                placeholder="123 Main Street"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                <input
-                  name="city"
-                  value={form.city}
-                  onChange={handleChange}
-                  required
-                  placeholder="New York"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
-                <input
-                  name="postalCode"
-                  value={form.postalCode}
-                  onChange={handleChange}
-                  required
-                  placeholder="10001"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
-              <input
-                name="country"
-                value={form.country}
-                onChange={handleChange}
-                required
-                placeholder="United States"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-              <input
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                required
-                placeholder="+1 234 567 8900"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold text-lg disabled:opacity-50 mt-4"
-            >
-              {loading ? 'Redirecting to payment...' : `Pay $${getTotalPrice().toFixed(2)} with Stripe`}
-            </button>
-          </form>
-        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '1.25rem' }}>
+            <h2 style={{ fontSize: '1rem', fontWeight: '600', color: '#111827', marginBottom: '1rem' }}>Shipping Information</h2>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {[
+                { name: 'fullName', label: 'Full Name', placeholder: 'John Doe', type: 'text' },
+                { name: 'address', label: 'Address', placeholder: '123 Main Street', type: 'text' },
+                { name: 'city', label: 'City', placeholder: 'New York', type: 'text' },
+                { name: 'postalCode', label: 'Postal Code', placeholder: '10001', type: 'text' },
+                { name: 'country', label: 'Country', placeholder: 'United States', type: 'text' },
+                { name: 'phone', label: 'Phone', placeholder: '+1 234 567 8900', type: 'tel' },
+              ].map(field => (
+                <div key={field.name}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#374151', marginBottom: '5px' }}>{field.label}</label>
+                  <input name={field.name} type={field.type} value={form[field.name]} onChange={handleChange} required placeholder={field.placeholder} style={inputStyle} />
+                </div>
+              ))}
+              <button type="submit" disabled={loading}
+                style={{ width: '100%', background: loading ? '#9ca3af' : '#FF6B00', color: '#fff', border: 'none', borderRadius: '10px', padding: '14px', fontSize: '16px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', marginTop: '8px' }}>
+                {loading ? 'Redirecting...' : `Pay $${getTotalPrice().toFixed(2)} with Stripe`}
+              </button>
+            </form>
+          </div>
 
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-          <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-            {items.map(item => (
-              <div key={item._id} className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                  {item.images?.[0]?.url ? (
-                    <img src={item.images[0].url} alt={item.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xl">📦</div>
-                  )}
+          <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '1.25rem' }}>
+            <h2 style={{ fontSize: '1rem', fontWeight: '600', color: '#111827', marginBottom: '1rem' }}>Order Summary</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '1rem' }}>
+              {items.map(item => (
+                <div key={item._id} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ width: '48px', height: '48px', background: '#f9fafb', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
+                    {item.images?.[0]?.url
+                      ? <img src={item.images[0].url} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📦</div>
+                    }
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: '13px', fontWeight: '500', color: '#111827', margin: '0 0 2px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</p>
+                    <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>Qty: {item.quantity}</p>
+                  </div>
+                  <p style={{ fontWeight: '600', fontSize: '13px', flexShrink: 0 }}>${(item.price * item.quantity).toFixed(2)}</p>
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium text-sm">{item.name}</p>
-                  <p className="text-gray-500 text-xs">Qty: {item.quantity}</p>
-                </div>
-                <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+              ))}
+            </div>
+            <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <span style={{ fontSize: '13px', color: '#6b7280' }}>Subtotal</span>
+                <span style={{ fontSize: '13px', fontWeight: '600' }}>${getTotalPrice().toFixed(2)}</span>
               </div>
-            ))}
-            <div className="border-t pt-3">
-              <div className="flex justify-between text-sm text-gray-600 mb-1">
-                <span>Subtotal</span>
-                <span>${getTotalPrice().toFixed(2)}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <span style={{ fontSize: '13px', color: '#6b7280' }}>Shipping</span>
+                <span style={{ fontSize: '13px', color: '#16a34a', fontWeight: '600' }}>Free</span>
               </div>
-              <div className="flex justify-between text-sm text-gray-600 mb-3">
-                <span>Shipping</span>
-                <span className="text-green-600">Free</span>
-              </div>
-              <div className="flex justify-between font-bold text-lg">
-                <span>Total</span>
-                <span className="text-blue-600">${getTotalPrice().toFixed(2)}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '1rem', fontWeight: '700' }}>Total</span>
+                <span style={{ fontSize: '1rem', fontWeight: '700', color: '#FF6B00' }}>${getTotalPrice().toFixed(2)}</span>
               </div>
             </div>
           </div>
