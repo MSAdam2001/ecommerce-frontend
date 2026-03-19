@@ -1,4 +1,8 @@
 'use client';
+
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import api from '@/lib/axios';
@@ -46,17 +50,11 @@ function SuccessContent() {
           </p>
         )}
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link
-            href="/products"
-            style={{ background: '#FF6B00', color: '#fff', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '600', fontSize: '14px' }}
-          >
+          <Link href="/products" style={{ background: '#FF6B00', color: '#fff', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '600', fontSize: '14px' }}>
             Continue Shopping
           </Link>
           {order && (
-            <Link
-              href="/orders"
-              style={{ border: '1px solid #FF6B00', color: '#FF6B00', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '600', fontSize: '14px' }}
-            >
+            <Link href="/orders" style={{ border: '1px solid #FF6B00', color: '#FF6B00', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '600', fontSize: '14px' }}>
               View Orders
             </Link>
           )}
@@ -70,10 +68,7 @@ export default function SuccessPage() {
   return (
     <Suspense fallback={
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
-          <p style={{ color: '#6b7280' }}>Loading...</p>
-        </div>
+        <p style={{ color: '#6b7280' }}>Loading...</p>
       </div>
     }>
       <SuccessContent />
