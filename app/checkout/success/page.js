@@ -1,10 +1,10 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import api from '@/lib/axios';
 import Link from 'next/link';
 
-export default function SuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const [order, setOrder] = useState(null);
@@ -18,37 +18,65 @@ export default function SuccessPage() {
           setLoading(false);
         })
         .catch(() => setLoading(false));
+    } else {
+      setLoading(false);
     }
   }, [sessionId]);
 
   if (loading) {
-    return <div className="text-center py-20 text-gray-400">Verifying payment...</div>;
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
+          <p style={{ color: '#6b7280', fontSize: '16px' }}>Verifying your payment...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
-      <div className="text-6xl mb-4">🎉</div>
-      <h1 className="text-3xl font-bold mb-2 text-green-600">Payment Successful!</h1>
-      <p className="text-gray-500 mb-2">Thank you for your order!</p>
-      {order && (
-        <p className="text-gray-400 text-sm mb-6">Order ID: {order._id}</p>
-      )}
-      <div className="flex gap-4">
-        <Link
-          href="/products"
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
-        >
-          Continue Shopping
-        </Link>
+    <div style={{ minHeight: '100vh', background: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb', padding: '2rem', maxWidth: '480px', width: '100%', textAlign: 'center' }}>
+        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#16a34a', marginBottom: '8px' }}>Payment Successful!</h1>
+        <p style={{ color: '#6b7280', marginBottom: '1rem' }}>Thank you for your order!</p>
         {order && (
-          <Link
-            href={`/orders/${order._id}`}
-            className="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50"
-          >
-            View Order
-          </Link>
+          <p style={{ fontSize: '13px', color: '#9ca3af', marginBottom: '1.5rem' }}>
+            Order ID: #{order._id?.slice(-8).toUpperCase()}
+          </p>
         )}
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Link
+            href="/products"
+            style={{ background: '#FF6B00', color: '#fff', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '600', fontSize: '14px' }}
+          >
+            Continue Shopping
+          </Link>
+          {order && (
+            <Link
+              href="/orders"
+              style={{ border: '1px solid #FF6B00', color: '#FF6B00', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '600', fontSize: '14px' }}
+            >
+              View Orders
+            </Link>
+          )}
+        </div>
       </div>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
+          <p style={{ color: '#6b7280' }}>Loading...</p>
+        </div>
+      </div>
+    }>
+      <SuccessContent />
+    </Suspense>
   );
 }
