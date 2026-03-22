@@ -21,7 +21,12 @@ export default function RegisterPage() {
       toast.success('Account created!');
       router.push('/');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Registration failed');
+  console.log('Register error:', err.response?.data);
+  const msg = err.response?.data?.message || 
+               err.response?.data?.errors?.[0]?.msg || 
+               err.message || 
+               'Registration failed';
+  toast.error(msg);
     } finally {
       setLoading(false);
     }

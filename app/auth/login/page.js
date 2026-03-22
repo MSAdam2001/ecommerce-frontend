@@ -20,7 +20,12 @@ export default function LoginPage() {
       toast.success('Welcome back!');
       router.push('/');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed');
+  console.log('Login error:', err.response?.data);
+  const msg = err.response?.data?.message || 
+               err.response?.data?.errors?.[0]?.msg || 
+               err.message || 
+               'Login failed';
+  toast.error(msg);
     } finally {
       setLoading(false);
     }
