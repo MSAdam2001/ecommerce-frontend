@@ -52,7 +52,7 @@ export default function Navbar() {
           ShopZone
         </Link>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
+        <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
           <Link href="/" style={{ color: '#374151', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}
             onMouseEnter={e => e.target.style.color = '#FF6B00'}
             onMouseLeave={e => e.target.style.color = '#374151'}
@@ -166,7 +166,8 @@ export default function Navbar() {
               )}
             </div>
           ) : (
-            <div style={{ display: 'flex', gap: '8px' }}>
+
+          <div className="desktop-nav" style={{ display: 'flex', gap: '8px' }}>
               <Link href="/auth/login" style={{ color: '#374151', border: '1px solid #e5e7eb', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>
                 Login
               </Link>
