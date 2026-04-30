@@ -11,10 +11,26 @@ export default function AdminDashboard() {
   const { user } = useAuthStore();
   const router = useRouter();
 
+  // ✅ FIX: wait for Zustand to rehydrate before checking role
+  const [hydrated, setHydrated] = useState(false);
+
   useEffect(() => {
-    if (!user || user.role !== 'admin') { router.push('/'); return; }
-    api.get('/admin/stats').then(r => setStats(r.data.stats)).catch(console.error).finally(() => setLoading(false));
-  }, [user]);
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return; // ✅ don't check until store is ready
+
+    if (!user || user.role !== 'admin') {
+      router.push('/');
+      return;
+    }
+
+    api.get('/admin/stats')
+      .then(r => setStats(r.data.stats))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [user, hydrated]);
 
   const statusColor = {
     processing: { bg: '#FFF3E0', color: '#E65100' },
@@ -23,7 +39,14 @@ export default function AdminDashboard() {
     cancelled: { bg: '#FFEBEE', color: '#C62828' }
   };
 
-  if (loading) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb' }}><p style={{ color: '#6b7280' }}>Loading dashboard...</p></div>;
+  // ✅ Show nothing while rehydrating to prevent flash redirect
+  if (!hydrated) return null;
+
+  if (loading) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb' }}>
+      <p style={{ color: '#6b7280' }}>Loading dashboard...</p>
+    </div>
+  );
 
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb', padding: '1rem' }}>
@@ -99,7 +122,6 @@ export default function AdminDashboard() {
             </table>
           </div>
         </div>
-
       </div>
     </div>
   );
