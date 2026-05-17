@@ -16,16 +16,24 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(email, password);
+      const data = await login(email, password);
+
       toast.success('Welcome back!');
-      router.push('/');
+
+      // ✅ Redirect based on role
+      if (data.user?.role === 'admin') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/');
+      }
     } catch (err) {
-  console.log('Login error:', err.response?.data);
-  const msg = err.response?.data?.message || 
-               err.response?.data?.errors?.[0]?.msg || 
-               err.message || 
-               'Login failed';
-  toast.error(msg);
+      console.log('Login error:', err.response?.data);
+      const msg =
+        err.response?.data?.message ||
+        err.response?.data?.errors?.[0]?.msg ||
+        err.message ||
+        'Login failed';
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -42,7 +50,9 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>Email address</label>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
+              Email address
+            </label>
             <input
               type="email"
               value={email}
@@ -53,7 +63,9 @@ export default function LoginPage() {
             />
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>Password</label>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
+              Password
+            </label>
             <input
               type="password"
               value={password}
@@ -74,7 +86,9 @@ export default function LoginPage() {
 
         <p style={{ textAlign: 'center', color: '#6b7280', marginTop: '1.5rem', fontSize: '14px' }}>
           Don&apos;t have an account?{' '}
-          <Link href="/auth/register" style={{ color: '#FF6B00', fontWeight: '600', textDecoration: 'none' }}>Create account</Link>
+          <Link href="/auth/register" style={{ color: '#FF6B00', fontWeight: '600', textDecoration: 'none' }}>
+            Create account
+          </Link>
         </p>
       </div>
     </div>

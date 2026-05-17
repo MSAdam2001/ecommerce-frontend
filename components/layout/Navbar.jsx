@@ -11,6 +11,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [mounted, setMounted] = useState(false); // FIX: hydration guard
   const { getTotalItems } = useCartStore();
   const { user, logout } = useAuthStore();
   const router = useRouter();
@@ -18,6 +19,11 @@ export default function Navbar() {
   const userRef = useRef(null);
 
   const isAdmin = user && user.role === 'admin';
+
+  // FIX: only render cart count after client mount to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -37,11 +43,11 @@ export default function Navbar() {
   };
 
   const adminLinks = [
-    { href: '/admin', label: 'Dashboard' },
-    { href: '/admin/orders', label: 'Orders' },
-    { href: '/admin/products', label: 'Products' },
+    { href: '/admin',            label: 'Dashboard'  },
+    { href: '/admin/orders',     label: 'Orders'     },
+    { href: '/admin/products',   label: 'Products'   },
     { href: '/admin/categories', label: 'Categories' },
-    { href: '/admin/users', label: 'Users' }
+    { href: '/admin/users',      label: 'Users'      },
   ];
 
   return (
@@ -56,15 +62,11 @@ export default function Navbar() {
           <Link href="/" style={{ color: '#374151', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}
             onMouseEnter={e => e.target.style.color = '#FF6B00'}
             onMouseLeave={e => e.target.style.color = '#374151'}
-          >
-            Home
-          </Link>
+          >Home</Link>
           <Link href="/products" style={{ color: '#374151', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}
             onMouseEnter={e => e.target.style.color = '#FF6B00'}
             onMouseLeave={e => e.target.style.color = '#374151'}
-          >
-            Products
-          </Link>
+          >Products</Link>
 
           {isAdmin === true && (
             <div ref={adminRef} style={{ position: 'relative' }}>
@@ -100,9 +102,11 @@ export default function Navbar() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+
+          {/* FIX: wrap badge in mounted check — prevents server/client HTML mismatch */}
           <Link href="/cart" style={{ position: 'relative', color: '#374151', textDecoration: 'none' }}>
             <FiShoppingCart size={22} />
-            {getTotalItems() > 0 && (
+            {mounted && getTotalItems() > 0 && (
               <span style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#FF6B00', color: '#fff', fontSize: '10px', fontWeight: '700', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {getTotalItems()}
               </span>
@@ -166,8 +170,7 @@ export default function Navbar() {
               )}
             </div>
           ) : (
-
-          <div className="desktop-nav" style={{ display: 'flex', gap: '8px' }}>
+            <div className="desktop-nav" style={{ display: 'flex', gap: '8px' }}>
               <Link href="/auth/login" style={{ color: '#374151', border: '1px solid #e5e7eb', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>
                 Login
               </Link>
@@ -187,11 +190,14 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Mobile menu */}
       {menuOpen && (
         <div style={{ background: '#fff', borderTop: '1px solid #f3f4f6', padding: '1rem' }}>
           <Link href="/" style={{ display: 'block', padding: '12px 0', color: '#374151', textDecoration: 'none', fontSize: '15px', borderBottom: '1px solid #f9fafb' }} onClick={() => setMenuOpen(false)}>Home</Link>
           <Link href="/products" style={{ display: 'block', padding: '12px 0', color: '#374151', textDecoration: 'none', fontSize: '15px', borderBottom: '1px solid #f9fafb' }} onClick={() => setMenuOpen(false)}>Products</Link>
-          <Link href="/cart" style={{ display: 'block', padding: '12px 0', color: '#374151', textDecoration: 'none', fontSize: '15px', borderBottom: '1px solid #f9fafb' }} onClick={() => setMenuOpen(false)}>Cart</Link>
+          <Link href="/cart" style={{ display: 'block', padding: '12px 0', color: '#374151', textDecoration: 'none', fontSize: '15px', borderBottom: '1px solid #f9fafb' }} onClick={() => setMenuOpen(false)}>
+            Cart {mounted && getTotalItems() > 0 && `(${getTotalItems()})`}
+          </Link>
           {user && (
             <Link href="/orders" style={{ display: 'block', padding: '12px 0', color: '#374151', textDecoration: 'none', fontSize: '15px', borderBottom: '1px solid #f9fafb' }} onClick={() => setMenuOpen(false)}>My Orders</Link>
           )}
